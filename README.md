@@ -68,9 +68,9 @@ $ cargo test
 $ cargo insta review
 ```
 
-For more information on updating see Snapshot Updating.
+For more information on updating see [Snapshot Updating].
 
-Snapshot Updating: #snapshot-updating
+[Snapshot Updating]: #snapshot-updating
 
 ## How it operates
 
@@ -228,12 +228,12 @@ the syntax `{ selector => replacement_value }`.
 The following selectors exist:
 
 - `.key`: selects the given key
-- `"key"`: alternative syntax for keys
-- `index`: selects the given index in an array
-- ``: selects all items on an array
-- `:end`: selects all items up to `end` (excluding, supports negative indexing)
-- `start:`: selects all items starting with `start`
-- `start:end`: selects all items from `start` to `end` (end excluding,
+- `["key"]`: alternative syntax for keys
+- `[index]`: selects the given index in an array
+- `[]`: selects all items on an array
+- `[:end]`: selects all items up to `end` (excluding, supports negative indexing)
+- `[start:]`: selects all items starting with `start`
+- `[start:end]`: selects all items from `start` to `end` (end excluding,
   supports negative indexing).
 - `.*`: selects all keys on that depth
 - `.**`: performs a deep match (zero or more items).  Can only be used once.
@@ -264,7 +264,7 @@ assert_yaml_snapshot!(&User {
 
 It's also possible to execute a callback that can produce a new value
 instead of hardcoding a replacement value by using the
-`dynamic_redaction` function:
+[`dynamic_redaction`] function:
 
 ```rust
 assert_yaml_snapshot!(&User {
@@ -300,7 +300,7 @@ glob!("inputs/*.txt", |path| {
 ```
 
 The path to the glob macro is relative to the location of the test
-file.  It uses the `globwalk` crate for actual glob operations.
+file.  It uses the [`globwalk`] crate for actual glob operations.
 
 ## Inline Snapshots
 
@@ -330,17 +330,17 @@ accept the change.  The file will then be updated automatically.
 
 The following features exist:
 
-* `csv`: enables CSV support (`assert_csv_snapshot!`)
-* `ron`: enables RON support (`assert_ron_snapshot!`)
-* `toml`: enables TOML support (`assert_toml_snapshot!`)
+* `csv`: enables CSV support ([`assert_csv_snapshot!`])
+* `ron`: enables RON support ([`assert_ron_snapshot!`])
+* `toml`: enables TOML support ([`assert_toml_snapshot!`])
 * `redactions`: enables support for redactions
-* `glob`: enables support for globbing (`glob!`)
+* `glob`: enables support for globbing ([`glob!`])
 * `colors`: enables color output (enabled by default)
 
 ## Settings
 
 There are some settings that can be changed on a per-thread (and thus
-per-test) basis.  For more information see Settings.
+per-test) basis.  For more information see [Settings].
 
 ## Legacy Snapshot Formats
 
