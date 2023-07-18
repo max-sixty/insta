@@ -439,6 +439,9 @@ macro_rules! assert_snapshot {
     ($value:expr, @$snapshot:literal) => {
         $crate::assert_snapshot!(
             $crate::_macro_support::ReferenceValue::Inline(
+                // Allow unknown lints until `needless_raw_string_hashes` is in
+                // our MSRV.
+                #[allow(unknown_lints)]
                 #[allow(clippy::needless_raw_string_hashes)]
                 $snapshot,
             ),
@@ -449,6 +452,9 @@ macro_rules! assert_snapshot {
     ($value:expr, $debug_expr:expr, @$snapshot:literal) => {
         $crate::assert_snapshot!(
             $crate::_macro_support::ReferenceValue::Inline(
+                // Allow unknown lints until `needless_raw_string_hashes` is in
+                // our MSRV.
+                #[allow(unknown_lints)]
                 #[allow(clippy::needless_raw_string_hashes)]
                 $snapshot,
             ),
