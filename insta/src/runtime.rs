@@ -371,6 +371,8 @@ impl<'a> SnapshotAssertionContext<'a> {
         let should_print = self.tool_config.output_behavior() != OutputBehavior::Nothing;
         let snapshot_update = snapshot_update_behavior(&self.tool_config, unseen);
 
+        dbg!(&snapshot_update);
+
         match snapshot_update {
             SnapshotUpdateBehavior::InPlace => {
                 if let Some(ref snapshot_file) = self.snapshot_file {
@@ -400,7 +402,8 @@ impl<'a> SnapshotAssertionContext<'a> {
             }
             SnapshotUpdateBehavior::NewFile => {
                 if let Some(ref snapshot_file) = self.snapshot_file {
-                    if let Some(new_path) = new_snapshot.save_new(snapshot_file)? {
+                    dbg!(&self.snapshot_file);
+                    if let Some(new_path) = dbg!(new_snapshot.save_new(snapshot_file)?) {
                         if should_print {
                             elog!(
                                 "{} {}",
@@ -671,6 +674,7 @@ pub fn assert_snapshot(
         .as_ref()
         .map(|x| {
             if tool_config.require_full_match() {
+                dbg!(&x, &new_snapshot);
                 x.matches_fully(&new_snapshot)
             } else {
                 x.matches(&new_snapshot)
@@ -687,6 +691,7 @@ pub fn assert_snapshot(
     // otherwise print information and update snapshots.
     } else {
         print_snapshot_info(&ctx, &new_snapshot);
+        dbg!("printed");
         let update_result = ctx.update_snapshot(new_snapshot)?;
         finalize_assertion(&ctx, update_result);
     }

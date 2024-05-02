@@ -323,31 +323,26 @@ impl Snapshot {
             buf.push_str(&line);
         }
 
-        let module_name = p
-            .file_name()
+        // The final part of the snapshot file name is the test name; the
+        // initial parts are the module name
+
+        let parts: Vec<&str> = p
+            .file_stem()
             .unwrap()
             .to_str()
             .unwrap_or("")
-            .split("__")
-            .next()
-            .unwrap_or("<unknown>")
-            .to_string();
+            .rsplitn(2, "__")
+            .collect();
 
-        let snapshot_name = p
-            .file_name()
-            .unwrap()
-            .to_str()
-            .unwrap_or("")
-            .split('.')
-            .next()
-            .unwrap_or("")
-            .splitn(2, "__")
-            .nth(1)
-            .map(|x| x.to_string());
+        let (snapshot_name, module_name) = match parts.split_first() {
+            Some((&snapshot_name, modules)) => (snapshot_name, modules.join("__")),
+            None => ("", "<unknown>".to_string()),
+        };
 
+        dbg!(&module_name, &snapshot_name);
         Ok(Snapshot::from_components(
             module_name,
-            snapshot_name,
+            Some(snapshot_name.into()),
             metadata,
             buf.into(),
         ))
@@ -468,6 +463,8 @@ impl Snapshot {
             fs::create_dir_all(folder)?;
         }
 
+        dbg!(md);
+
         let serialized_snapshot = self.serialize_snapshot(md);
         dbg!(&md, &serialized_snapshot);
 
@@ -478,12 +475,9 @@ impl Snapshot {
                 Cow::Owned(trimmed) => Cow::Owned(self.serialize_snapshot(&trimmed)),
                 Cow::Borrowed(_) => Cow::Borrowed(&serialized_snapshot),
             };
-            // TODO: why is this here? Why would this method be called if we
-            // weren't writing a new snapshot? How does force update work?
-
-            if old == persisted.as_str() {
-                return Ok(false);
-            }
+            // if dbg!(old) == dbg!(persisted.as_str()) {
+            //     return Ok(false);
+            // }
         }
 
         fs::write(path, serialized_snapshot)?;
@@ -507,7 +501,7 @@ impl Snapshot {
     pub(crate) fn save_new(&self, path: &Path) -> Result<Option<PathBuf>, Box<dyn Error>> {
         let mut new_path = path.to_path_buf();
         new_path.set_extension("snap.new");
-        if self.save_with_metadata(&new_path, Some(path), &self.metadata)? {
+        if dbg!(self.save_with_metadata(&new_path, Some(path), &self.metadata)?) {
             Ok(Some(new_path))
         } else {
             Ok(None)
