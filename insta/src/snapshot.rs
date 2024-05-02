@@ -469,6 +469,7 @@ impl Snapshot {
         }
 
         let serialized_snapshot = self.serialize_snapshot(md);
+        dbg!(&md, &serialized_snapshot);
 
         // check the reference file for contents.  Note that we always want to
         // compare snapshots that were trimmed to persistence here.
@@ -477,6 +478,9 @@ impl Snapshot {
                 Cow::Owned(trimmed) => Cow::Owned(self.serialize_snapshot(&trimmed)),
                 Cow::Borrowed(_) => Cow::Borrowed(&serialized_snapshot),
             };
+            // TODO: why is this here? Why would this method be called if we
+            // weren't writing a new snapshot? How does force update work?
+
             if old == persisted.as_str() {
                 return Ok(false);
             }

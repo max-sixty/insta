@@ -206,14 +206,15 @@ impl<'a> SnapshotPrinter<'a> {
             }
         }
 
-        if !has_changes {
-            println!(
-                "{:>5} {:>5} │{}",
-                "",
-                style("-").dim(),
-                style(" snapshots are matching").cyan(),
-            );
-        }
+        // TODO: this currently writes into the snapshot! Is it ever normally called?
+        // if !has_changes {
+        //     println!(
+        //         "{:>5} {:>5} │{}",
+        //         "",
+        //         style("-").dim(),
+        //         style(" snapshots are matching").cyan(),
+        //     );
+        // }
 
         println!("────────────┴{:─^1$}", "", width.saturating_sub(13));
     }
