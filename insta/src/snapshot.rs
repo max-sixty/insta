@@ -87,8 +87,12 @@ impl PendingInlineSnapshot {
                 match key.as_str() {
                     Some("run_id") => run_id = value.as_str().map(|x| x.to_string()),
                     Some("line") => line = value.as_u64().map(|x| x as u32),
-                    Some("old") if !value.is_nil() => old = Some(Snapshot::from_content(value)?),
-                    Some("new") if !value.is_nil() => new = Some(Snapshot::from_content(value)?),
+                    Some("old") if !value.is_nil() => {
+                        old = Some(Snapshot::from_content(value, SnapshotKind::Inline)?)
+                    }
+                    Some("new") if !value.is_nil() => {
+                        new = Some(Snapshot::from_content(value, SnapshotKind::Inline)?)
+                    }
                     _ => {}
                 }
             }
@@ -260,6 +264,13 @@ impl MetaData {
     }
 }
 
+/// The kind of snapshot.
+#[derive(Debug, Clone, PartialEq)]
+pub enum SnapshotKind {
+    Named,
+    Inline,
+}
+
 /// A helper to work with stored snapshots.
 #[derive(Debug, Clone)]
 pub struct Snapshot {
@@ -267,6 +278,7 @@ pub struct Snapshot {
     snapshot_name: Option<String>,
     metadata: MetaData,
     snapshot: SnapshotContents,
+    kind: SnapshotKind,
 }
 
 impl Snapshot {
@@ -332,6 +344,7 @@ impl Snapshot {
             Some(snapshot_name),
             metadata,
             buf.into(),
+            SnapshotKind::Named,
         ))
     }
 
@@ -341,17 +354,19 @@ impl Snapshot {
         snapshot_name: Option<String>,
         metadata: MetaData,
         snapshot: SnapshotContents,
+        kind: SnapshotKind,
     ) -> Snapshot {
         Snapshot {
             module_name,
             snapshot_name,
             metadata,
             snapshot,
+            kind,
         }
     }
 
     #[cfg(feature = "_cargo_insta_internal")]
-    fn from_content(content: Content) -> Result<Snapshot, Box<dyn Error>> {
+    fn from_content(content: Content, kind: SnapshotKind) -> Result<Snapshot, Box<dyn Error>> {
         if let Content::Map(map) = content {
             let mut module_name = None;
             let mut snapshot_name = None;
@@ -380,6 +395,7 @@ impl Snapshot {
                 snapshot_name,
                 metadata: metadata.ok_or(content::Error::MissingField)?,
                 snapshot: snapshot.ok_or(content::Error::MissingField)?,
+                kind,
             })
         } else {
             Err(content::Error::UnexpectedDataType.into())

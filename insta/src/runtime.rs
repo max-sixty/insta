@@ -8,14 +8,17 @@ use std::path::{Path, PathBuf};
 use std::str;
 use std::sync::{Arc, Mutex};
 
-use crate::env::{
-    get_cargo_workspace, get_tool_config, memoize_snapshot_file, snapshot_update_behavior,
-    OutputBehavior, SnapshotUpdateBehavior, ToolConfig,
-};
 use crate::output::SnapshotPrinter;
 use crate::settings::Settings;
 use crate::snapshot::{MetaData, PendingInlineSnapshot, Snapshot, SnapshotContents};
 use crate::utils::{path_to_storage, style};
+use crate::{
+    env::{
+        get_cargo_workspace, get_tool_config, memoize_snapshot_file, snapshot_update_behavior,
+        OutputBehavior, SnapshotUpdateBehavior, ToolConfig,
+    },
+    snapshot::SnapshotKind,
+};
 
 lazy_static::lazy_static! {
     static ref TEST_NAME_COUNTERS: Mutex<BTreeMap<String, usize>> =
@@ -289,6 +292,7 @@ impl<'a> SnapshotAssertionContext<'a> {
                     None,
                     MetaData::default(),
                     SnapshotContents::from_inline(contents),
+                    SnapshotKind::Inline,
                 ));
             }
         };
@@ -316,7 +320,12 @@ impl<'a> SnapshotAssertionContext<'a> {
     }
 
     /// Creates the new snapshot from input values.
-    pub fn new_snapshot(&self, contents: SnapshotContents, expr: &str) -> Snapshot {
+    pub fn new_snapshot(
+        &self,
+        contents: SnapshotContents,
+        expr: &str,
+        kind: SnapshotKind,
+    ) -> Snapshot {
         Snapshot::from_components(
             self.module_path.replace("::", "__"),
             self.snapshot_name.as_ref().map(|x| x.to_string()),
@@ -336,6 +345,7 @@ impl<'a> SnapshotAssertionContext<'a> {
                     .map(|x| path_to_storage(&x)),
             }),
             contents,
+            kind,
         )
     }
 
@@ -634,6 +644,11 @@ pub fn assert_snapshot(
     assertion_line: u32,
     expr: &str,
 ) -> Result<(), Box<dyn Error>> {
+    let kind = match &refval {
+        ReferenceValue::Named(_) => SnapshotKind::Named,
+        ReferenceValue::Inline(_) => SnapshotKind::Inline,
+    };
+
     let ctx = SnapshotAssertionContext::prepare(
         refval,
         manifest_dir,
@@ -649,7 +664,7 @@ pub fn assert_snapshot(
     let new_snapshot_value =
         Settings::with(|settings| settings.filters().apply_to(new_snapshot_value));
 
-    let new_snapshot = ctx.new_snapshot(new_snapshot_value.into(), expr);
+    let new_snapshot = ctx.new_snapshot(new_snapshot_value.into(), expr, kind);
 
     // memoize the snapshot file if requested.
     if let Some(ref snapshot_file) = ctx.snapshot_file {
