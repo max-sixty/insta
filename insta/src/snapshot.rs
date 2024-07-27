@@ -288,6 +288,8 @@ impl Snapshot {
 
         f.read_line(&mut buf)?;
 
+        dbg!(&p);
+
         // yaml format
         let metadata = if buf.trim_end() == "---" {
             loop {
@@ -301,6 +303,7 @@ impl Snapshot {
                 }
             }
             let content = yaml::parse_str(&buf, p)?;
+            dbg!(&content);
             MetaData::from_content(content)?
         // legacy format
         } else {

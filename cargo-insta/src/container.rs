@@ -68,6 +68,7 @@ impl SnapshotContainer {
                 let old = if fs::metadata(&target_path).is_err() {
                     None
                 } else {
+                    dbg!(target_path.clone());
                     Some(Snapshot::from_file(&target_path)?)
                 };
                 let new = Snapshot::from_file(&snapshot_path)?;

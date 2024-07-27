@@ -255,7 +255,19 @@ impl<'a> SnapshotAssertionContext<'a> {
                     is_doctest,
                 );
                 if fs::metadata(&file).is_ok() {
-                    old_snapshot = Some(Snapshot::from_file(&file)?);
+                    match Snapshot::from_file(&file) {
+                        Ok(snapshot) => {
+                            old_snapshot = Some(snapshot);
+                        }
+                        Err(error) => {
+                            elog!(
+                                "{} {}: {}",
+                                style("Failed to read snapshot file: ").cyan(),
+                                file.display(),
+                                style(error).red(),
+                            );
+                        }
+                    }
                 }
                 snapshot_name = Some(name);
                 snapshot_file = Some(file);
