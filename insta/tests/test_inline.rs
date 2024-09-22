@@ -37,6 +37,16 @@ fn test_single_line() {
     assert_snapshot!("Testing", @"Testing");
 }
 
+#[test]
+fn test_single_line_plus() {
+    // New `+` syntax
+    assert_snapshot!("Testing", !"Testing");
+
+    // TODO: move to integration test: confirm this fails (it wouldn't fail with
+    // a `-` prefix, for example)
+    // assert_snapshot!("Testing", *5);
+}
+
 // We used to use the thread name for snapshot name detection.  This is unreliable
 // so this test now basically does exactly the same as `test_unnamed_single_line`.
 #[test]

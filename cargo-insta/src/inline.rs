@@ -188,7 +188,8 @@ impl FilePatcher {
                 }
 
                 match tokens[tokens.len() - 2] {
-                    TokenTree::Punct(ref punct) if punct.as_char() == '@' => {}
+                    TokenTree::Punct(ref punct)
+                        if punct.as_char() == '@' || punct.as_char() == '+' => {}
                     _ => {
                         return false;
                     }

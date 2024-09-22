@@ -330,6 +330,15 @@ macro_rules! _assert_snapshot_base {
             $($arg),*
         )
     };
+    // Or using the new syntax
+    (transform=$transform:expr, $($arg:expr),*, !$snapshot:literal $(,)?) => {
+        $crate::_assert_snapshot_base!(
+            transform = $transform,
+            #[allow(clippy::needless_raw_string_hashes)]
+            $crate::_macro_support::ReferenceValue::Inline($snapshot),
+            $($arg),*
+        )
+    };
     // If there's no debug_expr, use the stringified value, call self.
     (transform=$transform:expr, $name:expr, $value:expr $(,)?) => {
         $crate::_assert_snapshot_base!(transform = $transform, $name, $value, stringify!($value))
