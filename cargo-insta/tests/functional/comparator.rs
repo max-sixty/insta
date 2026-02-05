@@ -22,17 +22,15 @@ insta = { path = '$PROJECT_PATH' }
         .add_file(
             "src/lib.rs",
             r#"
-use insta::comparator::Comparator;
-use insta::internals::SnapshotContents;
-use insta::{Snapshot, with_settings, assert_snapshot};
+use insta::{Comparator, Snapshot, with_settings, assert_snapshot};
 
 /// A comparator that ignores whitespace differences.
 struct WhitespaceInsensitiveComparator;
 
 impl Comparator for WhitespaceInsensitiveComparator {
     fn matches(&self, reference: &Snapshot, test: &Snapshot) -> bool {
-        match (reference.contents(), test.contents()) {
-            (SnapshotContents::Text(a), SnapshotContents::Text(b)) => {
+        match (reference.as_text(), test.as_text()) {
+            (Some(a), Some(b)) => {
                 let a_normalized: String = a.to_string().split_whitespace().collect();
                 let b_normalized: String = b.to_string().split_whitespace().collect();
                 a_normalized == b_normalized
@@ -98,17 +96,15 @@ hello    world
         .add_file(
             "src/lib.rs",
             r#"
-use insta::comparator::Comparator;
-use insta::internals::SnapshotContents;
-use insta::{Snapshot, with_settings, assert_snapshot};
+use insta::{Comparator, Snapshot, with_settings, assert_snapshot};
 
 /// A comparator that ignores whitespace differences.
 struct WhitespaceInsensitiveComparator;
 
 impl Comparator for WhitespaceInsensitiveComparator {
     fn matches(&self, reference: &Snapshot, test: &Snapshot) -> bool {
-        match (reference.contents(), test.contents()) {
-            (SnapshotContents::Text(a), SnapshotContents::Text(b)) => {
+        match (reference.as_text(), test.as_text()) {
+            (Some(a), Some(b)) => {
                 let a_normalized: String = a.to_string().split_whitespace().collect();
                 let b_normalized: String = b.to_string().split_whitespace().collect();
                 a_normalized == b_normalized
@@ -165,8 +161,7 @@ insta = { path = '$PROJECT_PATH' }
             "src/lib.rs",
             r#"
 use std::sync::atomic::{AtomicBool, Ordering};
-use insta::comparator::Comparator;
-use insta::{Snapshot, with_settings, assert_snapshot};
+use insta::{Comparator, Snapshot, with_settings, assert_snapshot};
 
 static MATCHES_FULLY_CALLED: AtomicBool = AtomicBool::new(false);
 
@@ -231,8 +226,7 @@ insta = { path = '$PROJECT_PATH' }
         .add_file(
             "src/lib.rs",
             r#"
-use insta::comparator::Comparator;
-use insta::{Snapshot, with_settings, assert_snapshot};
+use insta::{Comparator, Snapshot, with_settings, assert_snapshot};
 
 /// Always passes.
 struct AlwaysPassComparator;
